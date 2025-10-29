@@ -1,0 +1,5 @@
+akshare
+pytest
+pytest-mock
+python-dotenv
+openai
