@@ -1,7 +1,7 @@
 import akshare as ak
 import pandas as pd
 
-def get_fund_data(fund_code: str) -> pd.DataFrame:
+def get_fund_data(fund_code: str, start_date: str = None) -> pd.DataFrame:
     """
     Fetches fund data from Akshare.
     

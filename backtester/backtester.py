@@ -8,10 +8,18 @@ class Backtester:
         self.shares = 0.0
         self.portfolio_value = initial_cash
         self.trades = []
+        self.history = []
 
     def run(self, historical_data: pd.DataFrame):
         # 确保数据按日期排序
         data = historical_data.sort_values(by='净值日期').reset_index(drop=True)
+
+        # 记录初始状态
+        if not data.empty:
+            self.history.append({
+                'date': data['净值日期'].iloc[0],
+                'value': self.initial_cash
+            })
 
         # 从第二天开始迭代，因为我们需要前一天的数据来做决策
         for i in range(1, len(data)):
@@ -54,6 +62,12 @@ class Backtester:
             # 更新当前投资组合总价值
             self.portfolio_value = self.cash + self.shares * current_price
 
+            # 记录每日资产净值
+            self.history.append({
+                'date': current_date,
+                'value': self.portfolio_value
+            })
+
             # 打印本轮日志
             print(f"--- {current_date} ---")
             print(f"Decision: {main_decision.upper()} ({reason})")
@@ -68,6 +82,7 @@ class Backtester:
         report = {
             "final_portfolio_value": self.portfolio_value,
             "total_return_pct": total_return_pct,
-            "trades": self.trades
+            "trades": self.trades,
+            "history": self.history
         }
         return report

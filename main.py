@@ -19,11 +19,21 @@ def run_live(agent):
         print(f"  Reason: {reason}")
     print("-------------------------\n")
 
-def run_backtest(agent):
+from datetime import datetime, timedelta
+
+from report.generator import generate_html_report
+
+def run_backtest(agent, start_date_str):
     """运行历史回测模式。"""
-    print(f"\nFetching historical data for fund {agent.fund_code}...")
+    if start_date_str:
+        start_date = start_date_str
+    else:
+        # 默认回测最近半年
+        start_date = (datetime.now() - timedelta(days=180)).strftime('%Y%m%d')
+
+    print(f"\nFetching historical data for fund {agent.fund_code} from {start_date}...")
     # 获取完整的历史数据用于回测
-    historical_data = get_fund_data(fund_code=agent.fund_code)
+    historical_data = get_fund_data(fund_code=agent.fund_code, start_date=start_date)
     print(f"Found {len(historical_data)} data points.")
 
     print("Running backtest...")
@@ -37,6 +47,9 @@ def run_backtest(agent):
     print(f"Total Trades:              {len(report['trades'])}")
     print("-----------------------\n")
 
+    # 生成HTML报告
+    generate_html_report(report)
+
 def main():
     """
     应用程序主入口，处理命令行参数。
@@ -49,6 +62,7 @@ def main():
 
     # 定义 backtest 命令
     parser_backtest = subparsers.add_parser('backtest', help='Run a backtest on historical data.')
+    parser_backtest.add_argument('--start', type=str, help='Start date for backtesting in YYYYMMDD format.')
 
     args = parser.parse_args()
 
@@ -61,7 +75,7 @@ def main():
         if args.command == 'run':
             run_live(agent)
         elif args.command == 'backtest':
-            run_backtest(agent)
+            run_backtest(agent, args.start)
 
     except Exception as e:
         print(f"\nAn error occurred: {e}")
