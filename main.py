@@ -6,7 +6,7 @@ sys.path.insert(0, '/Users/bytedance/agent/aitrade/ASharesTrader')
 
 from trading_agent.agent import TraderAgent
 from backtester.backtester import Backtester
-from data_source.akshare_data import get_fund_data
+from data_source.akshare_data import get_fund_net_value_history
 
 def run_live(agent):
     """运行实时决策模式。"""
@@ -29,11 +29,11 @@ def run_backtest(agent, start_date_str):
         start_date = start_date_str
     else:
         # 默认回测最近半年
-        start_date = (datetime.now() - timedelta(days=180)).strftime('%Y%m%d')
+        start_date = (datetime.now() - timedelta(days=30)).strftime('%Y%m%d')
 
     print(f"\nFetching historical data for fund {agent.fund_code} from {start_date}...")
     # 获取完整的历史数据用于回测
-    historical_data = get_fund_data(fund_code=agent.fund_code, start_date=start_date)
+    historical_data = get_fund_net_value_history(fund_code=agent.fund_code, start_date=start_date)
     print(f"Found {len(historical_data)} data points.")
 
     print("Running backtest...")

@@ -22,7 +22,7 @@ def test_agent_initialization(MockSimpleModel, mock_settings):
     assert agent.fund_code == '000001'
 
 @patch('trading_agent.agent.settings')
-@patch('trading_agent.agent.get_fund_data')
+@patch('trading_agent.agent.get_fund_net_value_history')
 @patch('models.simple_model.SimpleModel')
 def test_agent_run_with_fetch(MockSimpleModel, mock_get_fund_data, mock_settings):
     """测试 TraderAgent 在需要自己获取数据时的逻辑。"""
@@ -41,7 +41,13 @@ def test_agent_run_with_fetch(MockSimpleModel, mock_get_fund_data, mock_settings
 
     # 断言
     mock_get_fund_data.assert_called_once_with(fund_code='000001')
-    mock_model_instance.predict.assert_called_once_with("some fund data", 0, 0)
+    mock_model_instance.predict.assert_called_once()
+    # We can't easily assert the timestamp, so we check the other args
+    call_args = mock_model_instance.predict.call_args[0]
+    assert call_args[0] == "some fund data"
+    assert call_args[1] == "000001"
+    assert call_args[3] == 0 # current_shares
+    assert call_args[4] == 0 # cash
     assert decisions == {'SimpleModel': ('buy', 'Simple reason')}
 
 @patch('trading_agent.agent.settings')
@@ -58,5 +64,9 @@ def test_agent_run_with_provided_data(MockSimpleModel, mock_settings):
     # 执行
     decisions = agent.run(data="provided data")
     # 断言
-    mock_model_instance.predict.assert_called_with("provided data", 0, 0)
+    call_args = mock_model_instance.predict.call_args[0]
+    assert call_args[0] == "provided data"
+    assert call_args[1] == "000001"
+    assert call_args[3] == 0 # current_shares
+    assert call_args[4] == 0 # cash
     assert decisions == {'SimpleModel': ('buy', 'Simple reason')}

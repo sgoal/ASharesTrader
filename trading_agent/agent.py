@@ -1,6 +1,7 @@
 import importlib
+import pandas as pd
 from config import settings
-from data_source.akshare_data import get_fund_data
+from data_source.akshare_data import get_fund_net_value_history
 
 class TraderAgent:
     """
@@ -20,7 +21,7 @@ class TraderAgent:
             loaded_models.append(model_class())
         return loaded_models
 
-    def run(self, data=None, current_shares: float = 0, cash: float = 0):
+    def run(self, data=None, current_date=None, current_shares: float = 0, cash: float = 0):
         """
         Executes the core logic of the agent: fetch data -> predict.
         If data is provided, it uses that data (for backtesting).
@@ -31,13 +32,17 @@ class TraderAgent:
             if not self.fund_code:
                 raise ValueError("Fund code not configured in settings.")
             # Fetch data
-            fund_data = get_fund_data(fund_code=self.fund_code)
+            fund_data = get_fund_net_value_history(fund_code=self.fund_code)
+
+        # For live runs, use today as the current date
+        if current_date is None:
+            current_date = pd.Timestamp.now()
 
         # Execute each model and collect decisions
         decisions = {}
         for model in self.models:
             model_name = model.__class__.__name__
-            decision = model.predict(fund_data, current_shares, cash)
+            decision = model.predict(fund_data, self.fund_code, current_date, current_shares, cash)
             decisions[model_name] = decision
         
         return decisions

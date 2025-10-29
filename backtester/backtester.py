@@ -31,7 +31,12 @@ class Backtester:
             
             # 获取 agent 的决策
             # 我们只关心第一个模型的决策来简化逻辑
-            decisions = self.agent.run(data=agent_data, current_shares=self.shares, cash=self.cash)
+            decisions = self.agent.run(
+                data=agent_data, 
+                current_date=current_date, 
+                current_shares=self.shares, 
+                cash=self.cash
+            )
             main_decision, reason = list(decisions.values())[0]
 
             # 执行交易
@@ -45,7 +50,10 @@ class Backtester:
                     'date': current_date,
                     'action': 'buy',
                     'price': current_price,
-                    'shares': shares_to_buy
+                    'shares': shares_to_buy,
+                    'fund_code': self.agent.fund_code,
+                    'cash_after': self.cash,
+                    'shares_after': self.shares
                 })
             elif main_decision == 'sell' and self.shares > 0:
                 self.cash += self.shares * current_price
@@ -56,7 +64,10 @@ class Backtester:
                     'date': current_date,
                     'action': 'sell',
                     'price': current_price,
-                    'shares': sold_shares
+                    'shares': sold_shares,
+                    'fund_code': self.agent.fund_code,
+                    'cash_after': self.cash,
+                    'shares_after': self.shares
                 })
             
             # 更新当前投资组合总价值

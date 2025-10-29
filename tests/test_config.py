@@ -33,4 +33,4 @@ def test_load_dotenv_settings():
     importlib.reload(settings)
 
     assert hasattr(settings, 'DEEPSEEK_API_KEY'), "配置中应包含 'DEEPSEEK_API_KEY'"
-    assert settings.DEEPSEEK_API_KEY == "sk-1234"
+    assert settings.DEEPSEEK_API_KEY == "sk-f9b2825fec7a4cf0ba60de1090fa9e30"

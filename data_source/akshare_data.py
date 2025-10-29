@@ -1,30 +1,55 @@
-import akshare as ak
 import pandas as pd
+import akshare as ak
 
-def get_fund_data(fund_code: str, start_date: str = None) -> pd.DataFrame:
-    """
-    Fetches fund data from Akshare.
-    
-    :param fund_code: The code of the fund.
-    :param start_date: The start date in YYYYMMDD format.
-    :return: A pandas DataFrame with the fund data.
-    :raises Exception: If fetching data fails.
-    """
+def get_fund_net_value_history(fund_code: str, start_date: str = None) -> pd.DataFrame:
+    """Fetches fund net value history from Akshare."""
     try:
-        # The indicator "单位净值走势" gets the net asset value history.
         fund_data = ak.fund_open_fund_info_em(symbol=fund_code, indicator="单位净值走势")
         if fund_data.empty:
-            raise ValueError("Akshare returned an empty DataFrame. The fund code might be incorrect or data is unavailable.")
+            raise ValueError("Akshare returned an empty DataFrame for net value history.")
         
-        # Convert date column to datetime objects for comparison
         fund_data['净值日期'] = pd.to_datetime(fund_data['净值日期'])
 
         if start_date:
-            # Filter the DataFrame based on the start_date
             start_datetime = pd.to_datetime(start_date, format='%Y%m%d')
             fund_data = fund_data[fund_data['净值日期'] >= start_datetime].reset_index(drop=True)
 
         return fund_data
     except Exception as e:
-        # Include the original exception for better debugging
-        raise Exception(f"Failed to fetch data for fund {fund_code}. Original error: {e}") from e
+        raise Exception(f"Failed to fetch net value history for fund {fund_code}. Original error: {e}") from e
+
+def get_fund_basic_info(fund_code: str) -> pd.DataFrame:
+    """Fetches basic fund information from Akshare."""
+    try:
+        info_df = ak.fund_open_fund_info_em(symbol=fund_code)
+        if info_df.empty:
+            raise ValueError("Akshare returned an empty DataFrame for basic info.")
+        return info_df
+    except Exception as e:
+        raise Exception(f"Failed to fetch basic info for fund {fund_code}. Original error: {e}") from e
+
+def get_fund_portfolio_changes(fund_code: str, date: pd.Timestamp) -> pd.DataFrame:
+    """Fetches recent portfolio changes for a fund up to a given date."""
+    try:
+        # Fetch changes for the year of the given date
+        year = date.year
+        buy_changes = ak.fund_portfolio_change_em(symbol=fund_code, indicator="累计买入", date=str(year))
+        # For simplicity, we only consider buy changes in the prompt
+        if buy_changes.empty:
+            return pd.DataFrame([{"info": f"No portfolio changes found for {year}."}])
+        return buy_changes
+    except Exception as e:
+        return pd.DataFrame([{"error": f"Could not retrieve portfolio changes: {e}"}])
+
+def get_fund_manager_changes(fund_code: str, date: pd.Timestamp) -> pd.DataFrame:
+    """Fetches personnel changes for a fund up to a given date."""
+    try:
+        manager_changes = ak.fund_announcement_personnel_em(symbol=fund_code)
+        if manager_changes.empty:
+            return pd.DataFrame([{"info": "No personnel changes found."}])
+        
+        # Filter announcements up to the decision date
+        manager_changes['公告日期'] = pd.to_datetime(manager_changes['公告日期'])
+        return manager_changes[manager_changes['公告日期'] <= date]
+    except Exception as e:
+        return pd.DataFrame([{"error": f"Could not retrieve manager changes: {e}"}])

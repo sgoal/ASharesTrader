@@ -7,7 +7,7 @@ class SimpleModel(BaseModel):
     """
     A simple trading model based on the change of the last two net asset values.
     """
-    def predict(self, data: pd.DataFrame, current_shares: float = 0, cash: float = 0) -> Tuple[str, str]:
+    def predict(self, data: pd.DataFrame, fund_code: str, current_date: pd.Timestamp, current_shares: float = 0, cash: float = 0) -> Tuple[str, str]:
         """
         If there are fewer than 2 data points, returns 'hold'.
         Otherwise, compares the last two net asset values:
