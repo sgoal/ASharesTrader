@@ -8,8 +8,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: sans-serif; margin: 2rem; background-color: #f4f4f9; color: #333; }
-        h1 { color: #1a1a1a; }
-        #chart-container { max-width: 900px; margin: 2rem 0; background-color: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #1a1a1a; border-bottom: 2px solid #ddd; padding-bottom: 0.5rem; }
+        #chart-container { max-width: 1000px; margin: 2rem 0; background-color: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        table { width: 100%; max-width: 1000px; border-collapse: collapse; margin-top: 2rem; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #e9e9f0; }
+        tbody tr:nth-child(even) { background-color: #f9f9f9; }
+        td:nth-child(2) { text-transform: uppercase; font-weight: bold; }
+        .buy { color: #28a745; }
+        .sell { color: #dc3545; }
     </style>
 </head>
 <body>
@@ -17,8 +24,25 @@
     <div id="chart-container">
         <canvas id="portfolio-chart"></canvas>
     </div>
+
+    <h2>Trade Log</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Action</th>
+                <th>Price</th>
+                <th>Shares</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+        <tbody id="trade-log-body">
+            <!-- Trades will be injected here by JS -->
+        </tbody>
+    </table>
+
     <script>
-        const backtestData = {"final_portfolio_value": 9636.530114802332, "total_return_pct": -3.634698851976682, "trades": [{"date": "2025-10-16", "action": "buy", "price": 1.066, "shares": 9380.863039399625}, {"date": "2025-10-17", "action": "sell", "price": 1.038, "shares": 9380.863039399625}, {"date": "2025-10-21", "action": "buy", "price": 1.067, "shares": 9125.900501309101}, {"date": "2025-10-23", "action": "sell", "price": 1.055, "shares": 9125.900501309101}, {"date": "2025-10-27", "action": "buy", "price": 1.106, "shares": 8705.085921230651}], "history": [{"date": "2025-10-09", "value": 10000.0}, {"date": "2025-10-10", "value": 10000.0}, {"date": "2025-10-13", "value": 10000.0}, {"date": "2025-10-14", "value": 10000.0}, {"date": "2025-10-15", "value": 10000.0}, {"date": "2025-10-16", "value": 10000.0}, {"date": "2025-10-17", "value": 9737.33583489681}, {"date": "2025-10-20", "value": 9737.33583489681}, {"date": "2025-10-21", "value": 9737.33583489681}, {"date": "2025-10-22", "value": 9691.706332390266}, {"date": "2025-10-23", "value": 9627.825028881101}, {"date": "2025-10-24", "value": 9627.825028881101}, {"date": "2025-10-27", "value": 9627.825028881101}, {"date": "2025-10-28", "value": 9636.530114802332}]};
+        const backtestData = {"final_portfolio_value": 9373.258636638013, "total_return_pct": -6.267413633619872, "trades": [{"date": "2025-10-09", "action": "buy", "price": 1.138, "shares": 8787.346221441125, "fund_code": "000001", "cash_after": 0, "shares_after": 8787.346221441125, "reason": "Price increased from 1.1120 to 1.1270."}, {"date": "2025-10-13", "action": "sell", "price": 1.097, "shares": 8787.346221441125, "fund_code": "000001", "cash_after": 9639.718804920914, "shares_after": 0, "reason": "Price decreased from 1.1380 to 1.0980."}, {"date": "2025-10-16", "action": "buy", "price": 1.066, "shares": 9042.888184728812, "fund_code": "000001", "cash_after": 0, "shares_after": 9042.888184728812, "reason": "Price increased from 1.0520 to 1.0720."}, {"date": "2025-10-17", "action": "sell", "price": 1.038, "shares": 9042.888184728812, "fund_code": "000001", "cash_after": 9386.517935748507, "shares_after": 0, "reason": "Price decreased from 1.0720 to 1.0660."}, {"date": "2025-10-21", "action": "buy", "price": 1.067, "shares": 8797.111467430654, "fund_code": "000001", "cash_after": 0, "shares_after": 8797.111467430654, "reason": "Price increased from 1.0380 to 1.0470."}, {"date": "2025-10-23", "action": "sell", "price": 1.055, "shares": 8797.111467430654, "fund_code": "000001", "cash_after": 9280.95259813934, "shares_after": 0, "reason": "Price decreased from 1.0670 to 1.0620."}, {"date": "2025-10-27", "action": "buy", "price": 1.106, "shares": 8391.458045333942, "fund_code": "000001", "cash_after": 0, "shares_after": 8391.458045333942, "reason": "Price increased from 1.0550 to 1.0890."}], "history": [{"date": "2025-09-29", "value": 10000.0}, {"date": "2025-09-30", "value": 10000.0, "cash": 10000.0}, {"date": "2025-10-09", "value": 9999.999999999998, "cash": 0}, {"date": "2025-10-10", "value": 9648.506151142356, "cash": 0}, {"date": "2025-10-13", "value": 9639.718804920914, "cash": 9639.718804920914}, {"date": "2025-10-14", "value": 9639.718804920914, "cash": 9639.718804920914}, {"date": "2025-10-15", "value": 9639.718804920914, "cash": 9639.718804920914}, {"date": "2025-10-16", "value": 9639.718804920914, "cash": 0}, {"date": "2025-10-17", "value": 9386.517935748507, "cash": 9386.517935748507}, {"date": "2025-10-20", "value": 9386.517935748507, "cash": 9386.517935748507}, {"date": "2025-10-21", "value": 9386.517935748507, "cash": 0}, {"date": "2025-10-22", "value": 9342.532378411355, "cash": 0}, {"date": "2025-10-23", "value": 9280.95259813934, "cash": 9280.95259813934}, {"date": "2025-10-24", "value": 9280.95259813934, "cash": 9280.95259813934}, {"date": "2025-10-27", "value": 9280.952598139342, "cash": 0}, {"date": "2025-10-28", "value": 9289.344056184675, "cash": 0}, {"date": "2025-10-29", "value": 9373.258636638013, "cash": 0}]};
     </script>
     <script src="static/index.js"></script>
 </body>

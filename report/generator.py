@@ -10,8 +10,15 @@ HTML_TEMPLATE = """
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: sans-serif; margin: 2rem; background-color: #f4f4f9; color: #333; }
-        h1 { color: #1a1a1a; }
-        #chart-container { max-width: 900px; margin: 2rem 0; background-color: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #1a1a1a; border-bottom: 2px solid #ddd; padding-bottom: 0.5rem; }
+        #chart-container { max-width: 1000px; margin: 2rem 0; background-color: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        table { width: 100%; max-width: 1000px; border-collapse: collapse; margin-top: 2rem; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #e9e9f0; }
+        tbody tr:nth-child(even) { background-color: #f9f9f9; }
+        td:nth-child(2) { text-transform: uppercase; font-weight: bold; }
+        .buy { color: #28a745; }
+        .sell { color: #dc3545; }
     </style>
 </head>
 <body>
@@ -19,6 +26,23 @@ HTML_TEMPLATE = """
     <div id="chart-container">
         <canvas id="portfolio-chart"></canvas>
     </div>
+
+    <h2>Trade Log</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Action</th>
+                <th>Price</th>
+                <th>Shares</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+        <tbody id="trade-log-body">
+            <!-- Trades will be injected here by JS -->
+        </tbody>
+    </table>
+
     <script>
         const backtestData = {backtest_data};
     </script>

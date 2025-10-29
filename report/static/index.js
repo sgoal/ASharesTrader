@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const labels = backtestData.history.map(h => h.date);
     const portfolioValues = backtestData.history.map(h => h.value);
+    const cashValues = backtestData.history.map(h => h.cash);
 
     const buyTrades = backtestData.trades.filter(t => t.action === 'buy');
     const sellTrades = backtestData.trades.filter(t => t.action === 'sell');
@@ -16,7 +17,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 data: portfolioValues,
                 borderColor: '#4A90E2',
                 tension: 0.1,
-                pointRadius: 0, // Hide points by default
+                pointRadius: 0,
+            }, {
+                label: 'Cash',
+                data: cashValues,
+                borderColor: '#f8c25a',
+                borderDash: [5, 5],
+                tension: 0.1,
+                pointRadius: 0,
             }, {
                 label: 'Buy',
                 data: buyTrades.map(trade => ({
@@ -59,5 +67,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         }
+    });
+
+    // Populate the trade log table
+    const tradeLogBody = document.getElementById('trade-log-body');
+    backtestData.trades.forEach(trade => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${trade.date}</td>
+            <td class="${trade.action}">${trade.action}</td>
+            <td>$${trade.price.toFixed(4)}</td>
+            <td>${trade.shares.toFixed(2)}</td>
+            <td>${trade.reason}</td>
+        `;
+        tradeLogBody.appendChild(row);
     });
 });

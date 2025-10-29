@@ -53,7 +53,8 @@ class Backtester:
                     'shares': shares_to_buy,
                     'fund_code': self.agent.fund_code,
                     'cash_after': self.cash,
-                    'shares_after': self.shares
+                    'shares_after': self.shares,
+                    'reason': reason
                 })
             elif main_decision == 'sell' and self.shares > 0:
                 self.cash += self.shares * current_price
@@ -67,7 +68,8 @@ class Backtester:
                     'shares': sold_shares,
                     'fund_code': self.agent.fund_code,
                     'cash_after': self.cash,
-                    'shares_after': self.shares
+                    'shares_after': self.shares,
+                    'reason': reason
                 })
             
             # 更新当前投资组合总价值
@@ -76,7 +78,8 @@ class Backtester:
             # 记录每日资产净值
             self.history.append({
                 'date': current_date,
-                'value': self.portfolio_value
+                'value': self.portfolio_value,
+                'cash': self.cash
             })
 
             # 打印本轮日志
